@@ -33,6 +33,7 @@ type Backup struct {
 	term  *termstatus.Terminal
 	v     uint
 	start time.Time
+	dry   bool
 
 	totalBytes uint64
 
@@ -363,6 +364,7 @@ func (b *Backup) Finish(snapshotID restic.ID) {
 		TotalBytesProcessed: b.totalBytes,
 		TotalDuration:       time.Since(b.start).Seconds(),
 		SnapshotID:          snapshotID.Str(),
+		DryRun:              b.dry,
 	})
 }
 
@@ -370,6 +372,11 @@ func (b *Backup) Finish(snapshotID restic.ID) {
 // ArchiveProgressReporter interface.
 func (b *Backup) SetMinUpdatePause(d time.Duration) {
 	b.MinUpdatePause = d
+}
+
+// SetDryRun marks the backup as a "dry run".
+func (b *Backup) SetDryRun() {
+	b.dry = true
 }
 
 type statusUpdate struct {
@@ -417,4 +424,5 @@ type summaryOutput struct {
 	TotalBytesProcessed uint64  `json:"total_bytes_processed"`
 	TotalDuration       float64 `json:"total_duration"` // in seconds
 	SnapshotID          string  `json:"snapshot_id"`
+	DryRun              bool    `json:"dry_run,omitempty"`
 }
